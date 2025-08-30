@@ -25,6 +25,17 @@ Arquivo de configuração principal com valores padrão:
 - **Resource Quota**: limites de recursos do namespace
 - **RBAC**: controle de acesso desabilitado por padrão
 
+#### `deploy.sh`
+Script de automação para operações Helm:
+- **Install**: Instala o chart no cluster
+- **Upgrade**: Atualiza release existente
+- **Uninstall**: Remove o release do cluster
+- **Template**: Gera templates sem instalar
+- **Status**: Mostra status do release
+- **Rollback**: Reverte para versão anterior
+- **Lint**: Valida sintaxe do chart
+- **Test**: Executa testes do release
+
 ### Templates Kubernetes
 
 #### `templates/namespace.yaml`
@@ -102,17 +113,17 @@ ResourceQuota para controle de recursos:
 #### **Imagem Docker (OBRIGATÓRIO)**
 ```yaml
 image:
-  repository: YOUR_IMAGE_REPO           # Substitua pelos dados reais
-  tag: YOUR_IMAGE_TAG                   # Versão da sua aplicação
+  repository: "seu-ecr-repo/sua-app"  # Substitua pelos dados reais
+  tag: "v1.0.0"                      # Versão da sua aplicação
 ```
 
 #### **Banco de Dados (OBRIGATÓRIO)**
 ```yaml
 env:
   database:
-    url: YOUR_DATABASE_URL              # URL real do banco
-    username: YOUR_DATABASE_USERNAME    # Usuário do banco
-    password: YOUR_DATABASE_PASSWORD    # Senha do banco
+    url: "postgresql://host:5432/database"  # URL real do banco
+    username: "seu-usuario"                 # Usuário do banco
+    password: "sua-senha-segura"            # Senha do banco
 ```
 
 #### **Ingress Host (OBRIGATÓRIO)**
@@ -127,11 +138,11 @@ ingress:
 ```yaml
 resources:
   limits:
-    cpu: 500m       # Ajuste conforme necessário
-    memory: 1Gi   # Ajuste conforme necessário
+    cpu: 2000m      # Ajuste conforme necessário
+    memory: 4Gi     # Ajuste conforme necessário
   requests:
-    cpu: 200m       # Ajuste conforme necessário
-    memory: 512Gi     # Ajuste conforme necessário
+    cpu: 1000m      # Ajuste conforme necessário
+    memory: 2Gi     # Ajuste conforme necessário
 ```
 
 #### **Auto-scaling**
@@ -154,25 +165,52 @@ securityContext:
   fsGroup: 2000
 ```
 
-## Comandos Helm
+## Comandos de Deploy
 
-### Instalação
+### Usando o Script `deploy.sh` (Recomendado)
+
 ```bash
+# Dar permissão de execução (apenas na primeira vez)
+chmod +x deploy.sh
+
+# Instalar aplicação
+./deploy.sh install meu-app
+
+# Atualizar aplicação
+./deploy.sh upgrade meu-app
+
+# Ver status
+./deploy.sh status meu-app
+
+# Gerar templates (para debug)
+./deploy.sh template meu-app
+
+# Validar chart
+./deploy.sh lint
+
+# Desinstalar
+./deploy.sh uninstall meu-app
+
+# Rollback para versão anterior
+./deploy.sh rollback meu-app
+
+# Testar release
+./deploy.sh test meu-app
+```
+
+### Comandos Helm Diretos
+
+```bash
+# Instalação
 helm install meu-release ./matcarv-kube-helm -f values.yaml
-```
 
-### Atualização
-```bash
+# Atualização
 helm upgrade meu-release ./matcarv-kube-helm -f values.yaml
-```
 
-### Visualização de templates
-```bash
+# Visualização de templates
 helm template meu-release ./matcarv-kube-helm -f values.yaml
-```
 
-### Desinstalação
-```bash
+# Desinstalação
 helm uninstall meu-release
 ```
 
@@ -187,6 +225,7 @@ helm uninstall meu-release
 - **Observabilidade**: Labels e seletores consistentes
 - **Health Checks**: Probes de liveness e readiness
 - **Segurança**: Security contexts configurados
+- **Automação**: Script de deploy com todas as operações Helm
 
 ## Boas Práticas de Segurança
 
@@ -198,45 +237,35 @@ helm uninstall meu-release
 - Configurar security contexts apropriados
 - Implementar health checks
 
-## Personalização por Ambiente
+## Exemplo de Uso Completo
 
-Crie arquivos de values específicos para cada ambiente:
-
-### `values-dev.yaml`
+1. **Configure o `values.yaml`** com seus dados:
 ```yaml
-app:
-  replicaCount: 1
-resources:
-  limits:
-    cpu: 500m
-    memory: 1Gi
-hpa:
-  enabled: false
-rbac:
-  enabled: false
+image:
+  repository: "meu-ecr/minha-app"
+  tag: "v1.2.3"
+
+env:
+  database:
+    url: "postgresql://prod-db:5432/myapp"
+    username: "app_user"
+    password: "senha_segura"
+
+ingress:
+  host: "minha-app.exemplo.com"
 ```
 
-### `values-prod.yaml`
-```yaml
-app:
-  replicaCount: 3
-resources:
-  limits:
-    cpu: 2000m
-    memory: 4Gi
-hpa:
-  enabled: true
-  minReplicas: 3
-  maxReplicas: 10
-rbac:
-  enabled: true
-```
-
-### Deploy por ambiente:
+2. **Execute o deploy**:
 ```bash
-# Desenvolvimento
-helm install app-dev ./matcarv-kube-helm -f values-dev.yaml
+./deploy.sh install minha-app
+```
 
-# Produção
-helm install app-prod ./matcarv-kube-helm -f values-prod.yaml
+3. **Verifique o status**:
+```bash
+./deploy.sh status minha-app
+```
+
+4. **Para atualizações**:
+```bash
+./deploy.sh upgrade minha-app
 ```
