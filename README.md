@@ -113,17 +113,17 @@ ResourceQuota para controle de recursos:
 #### **Imagem Docker (OBRIGATÓRIO)**
 ```yaml
 image:
-  repository: "seu-ecr-repo/sua-app"  # Substitua pelos dados reais
-  tag: "v1.0.0"                      # Versão da sua aplicação
+  repository: YOUR_IMAGE_REPO           # Substitua pelos dados reais
+  tag: YOUR_IMAGE_TAG                   # Versão da sua aplicação
 ```
 
 #### **Banco de Dados (OBRIGATÓRIO)**
 ```yaml
 env:
   database:
-    url: "postgresql://host:5432/database"  # URL real do banco
-    username: "seu-usuario"                 # Usuário do banco
-    password: "sua-senha-segura"            # Senha do banco
+    url: YOUR_DATABASE_URL               # URL real do banco
+    username: YOUR_DATABASE_USERNAME     # Usuário do banco
+    password: YOUR_DATABASE_PASSWORD     # Senha do banco
 ```
 
 #### **Ingress Host (OBRIGATÓRIO)**
