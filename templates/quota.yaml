@@ -1,0 +1,19 @@
+{{- if .Values.resourceQuota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ .Release.Name }}-quota
+  namespace: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  hard:
+    {{- range $key, $value := .Values.resourceQuota.limits }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+{{- end }}

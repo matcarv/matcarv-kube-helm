@@ -1,0 +1,88 @@
+global:
+  environment: production
+
+app:
+  name: your-project-helm
+  version: "1.0.0"
+  replicaCount: 1
+
+image:
+  repository: YOUR_IMAGE_REPO
+  tag: YOUR_IMAGE_TAG
+  pullPolicy: IfNotPresent
+
+container:
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  protocol: TCP
+
+ingress:
+  enabled: true
+  host: eks.yourcompany.com.br
+  annotations: {}
+  tls: []
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 300m
+    memory: 512Gi
+
+hpa:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 90
+
+resourceQuota:
+  enabled: true
+  limits:
+    cpu: "1"
+    memory: 2Gi
+    requests.cpu: "0.5"
+    requests.memory: 1Gi
+
+env:
+  database:
+    url: YOUR_DATABASE_URL
+    username: YOUR_DATABASE_USERNAME
+    password: YOUR_DATABASE_PASSWORD
+
+rbac:
+  enabled: false
+  serviceAccount:
+    create: true
+    name: ""
+    annotations: {}
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 2000
+
+podSecurityContext:
+  enabled: false
+  fsGroup: 2000
+
+probes:
+  liveness:
+    enabled: true
+    path: /health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readiness:
+    enabled: true
+    path: /ready
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# Node Selection
+nodeSelector: {}
+tolerations: []
+affinity: {}
